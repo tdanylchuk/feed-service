@@ -19,6 +19,6 @@ func (feedService *DefaultFeedService) SaveFeed(feed models.Feed) error {
 	return err
 }
 
-func (feedService *DefaultFeedService) RetrieveFeed() (*[]models.Feed, error) {
-	return feedService.FeedRepository.FindFeeds()
+func (feedService *DefaultFeedService) RetrieveFeed(actor string) (*[]models.Feed, error) {
+	return feedService.FeedRepository.FindFeeds(actor)
 }

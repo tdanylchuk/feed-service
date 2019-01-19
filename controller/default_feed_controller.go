@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"github.com/tdanylchuk/feed-service/models"
 	"github.com/tdanylchuk/feed-service/service"
 	"log"
@@ -30,8 +31,10 @@ func (controller *DefaultFeedController) SaveFeed(w http.ResponseWriter, r *http
 }
 
 func (controller *DefaultFeedController) GetFeeds(w http.ResponseWriter, r *http.Request) {
-	log.Println("Controller. Retrieving user feed...")
-	feeds, err := controller.FeedService.RetrieveFeed()
+	vars := mux.Vars(r)
+	name, _ := vars["name"]
+	log.Printf("Controller. Retrieving user feed for [%s]...", name)
+	feeds, err := controller.FeedService.RetrieveFeed(name)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return

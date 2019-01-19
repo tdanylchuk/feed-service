@@ -7,7 +7,7 @@ import (
 
 type FeedService interface {
 	SaveFeed(feed models.Feed) error
-	RetrieveFeed() (*[]models.Feed, error)
+	RetrieveFeed(actor string) (*[]models.Feed, error)
 }
 
 func CreateFeedService(feedRepository repository.FeedRepository) FeedService {
