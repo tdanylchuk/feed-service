@@ -46,8 +46,9 @@ func InitController(db *pg.DB) controller.FeedController {
 
 func InitRouter(feedController controller.FeedController) *mux.Router {
 	router := mux.NewRouter()
-	router.HandleFunc("/feed/{name}", feedController.GetFeeds).Methods("GET")
-	router.HandleFunc("/feed", feedController.SaveFeed).Methods("POST")
+	//using {name} instead of implementing authentication
+	router.HandleFunc("/{actor}/feed", feedController.GetFeeds).Methods("GET")
+	router.HandleFunc("/{actor}/feed", feedController.SaveFeed).Methods("POST")
 	http.Handle("/", router)
 	return router
 }

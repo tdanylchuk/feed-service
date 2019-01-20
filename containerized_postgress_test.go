@@ -80,7 +80,7 @@ func (strategy *PostgresWaitStrategy) WaitUntilReady(ctx context.Context, target
 			log.Println("Successfully connected to Postgres DB.")
 			return nil
 		}
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(time.Second)
 	}
 	return errors.New(fmt.Sprintf("failed to connect to Postrgres container using host[%s] ", host))
 }
