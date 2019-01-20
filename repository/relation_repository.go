@@ -4,6 +4,7 @@ import "github.com/go-pg/pg"
 
 type RelationRepository interface {
 	AddRelation(actor string, target string, relation string) error
+	GetTargets(actor string, relation string) (*[]string, error)
 }
 
 //TODO: change to some graph DB implementation

@@ -33,11 +33,19 @@ func (feedService *DefaultFeedService) ProcessFeed(feed models.Feed) error {
 }
 
 func (feedService *DefaultFeedService) RetrieveFeed(actor string) (*[]models.Feed, error) {
-	return feedService.FeedRepository.FindFeeds(actor)
+	return feedService.FeedRepository.FindFeedsByActor(actor)
+}
+
+func (feedService *DefaultFeedService) RetrieveFriendsFeed(actor string) (*[]models.Feed, error) {
+	targets, err := feedService.RelationRepository.GetTargets(actor, followRelation)
+	if err != nil {
+		return nil, err
+	}
+	return feedService.FeedRepository.FindFeedsByActors(targets)
 }
 
 func (feedService *DefaultFeedService) ProcessAction(actor string, request models.ActionRequest) error {
-	log.Printf("Processing action request[%s] from [%s].", request, actor)
+	log.Printf("Processing action request[%#v] from [%s].", request, actor)
 	if request.Follow != nil {
 		return feedService.ProcessFollowAction(actor, request)
 	}

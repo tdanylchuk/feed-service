@@ -7,7 +7,8 @@ import (
 
 type FeedRepository interface {
 	SaveFeed(feed models.Feed) error
-	FindFeeds(actor string) (*[]models.Feed, error)
+	FindFeedsByActor(actor string) (*[]models.Feed, error)
+	FindFeedsByActors(actors *[]string) (*[]models.Feed, error)
 }
 
 func CreateFeedRepository(db *pg.DB) FeedRepository {

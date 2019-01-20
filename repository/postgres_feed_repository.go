@@ -15,10 +15,27 @@ func (repository *OrmPostgresFeedRepository) SaveFeed(feed models.Feed) error {
 	return repository.DB.Insert(&feed)
 }
 
-func (repository *OrmPostgresFeedRepository) FindFeeds(actor string) (*[]models.Feed, error) {
+func (repository *OrmPostgresFeedRepository) FindFeedsByActor(actor string) (*[]models.Feed, error) {
 	var feed []models.Feed
 	err := repository.DB.Model(&feed).
 		Where("Actor = ?", actor).
 		Select()
 	return &feed, err
+}
+
+func (repository *OrmPostgresFeedRepository) FindFeedsByActors(actors *[]string) (*[]models.Feed, error) {
+	var feed []models.Feed
+	actorsVararg := stringArrayToInterfaceArray(actors)
+	err := repository.DB.Model(&feed).
+		WhereIn("feed.actor IN (?)", actorsVararg...).
+		Select()
+	return &feed, err
+}
+
+func stringArrayToInterfaceArray(actors *[]string) []interface{} {
+	actorsVararg := make([]interface{}, len(*actors))
+	for i, v := range *actors {
+		actorsVararg[i] = v
+	}
+	return actorsVararg
 }

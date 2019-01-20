@@ -51,6 +51,7 @@ func InitRouter(feedController controller.FeedController) *mux.Router {
 	router.HandleFunc("/{actor}/feed", feedController.GetFeeds).Methods("GET")
 	router.HandleFunc("/{actor}/feed", feedController.SaveFeed).Methods("POST")
 	router.HandleFunc("/{actor}/action", feedController.PerformAction).Methods("POST")
+	router.HandleFunc("/{actor}/feed/friends", feedController.GetFriendsFeeds).Methods("GET")
 	http.Handle("/", router)
 	return router
 }

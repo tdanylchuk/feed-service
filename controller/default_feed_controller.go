@@ -72,9 +72,24 @@ func (controller *DefaultFeedController) PerformAction(w http.ResponseWriter, r 
 		return
 	}
 	if err := controller.FeedService.ProcessAction(actor, actionRequest); err != nil {
-		str := fmt.Sprintf("Something went wrong during processing action request. Request - [%s]. Error - [%s]",
+		str := fmt.Sprintf("Something went wrong during processing action request. Request - [%#v]. Error - [%s]",
 			actionRequest, err)
 		respondWithError(w, http.StatusInternalServerError, str)
 		return
 	}
+}
+
+func (controller *DefaultFeedController) GetFriendsFeeds(w http.ResponseWriter, r *http.Request) {
+	actor := GetActor(r)
+	log.Printf("Controller. Retrieving friends feed for [%s]...", actor)
+	feeds, err := controller.FeedService.RetrieveFriendsFeed(actor)
+	if err != nil {
+		log.Printf("Something went wrong during retriving friends feeds for [%s]. Error - [%s].", actor, err)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	feedsResponse := models.FriendsFeedsResponse{Feed: *feeds}
+	respondWithJSON(w, http.StatusOK, feedsResponse)
+	log.Println("Friends feed has been retrieved.", feeds)
 }
