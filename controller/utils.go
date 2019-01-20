@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func respondWithError(w http.ResponseWriter, code int, message string) {
@@ -23,4 +24,13 @@ func GetActor(r *http.Request) string {
 	vars := mux.Vars(r)
 	name, _ := vars["actor"]
 	return name
+}
+
+func GetBoolParam(r *http.Request, param string) bool {
+	var includeRelated bool
+	includeRelated, err := strconv.ParseBool(r.FormValue(param))
+	if err != nil {
+		includeRelated = false
+	}
+	return includeRelated
 }

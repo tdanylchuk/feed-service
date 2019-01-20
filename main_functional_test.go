@@ -38,6 +38,11 @@ func TestBadJSONFeedPost(t *testing.T) {
 	AssertBadJSONFeedPost(t)
 }
 
+//enriched feed suit
+func TestEnrichedFeedFlow(t *testing.T) {
+	AssertEnrichedFeedFlow(t)
+}
+
 //friends feed suit
 func TestRetrieveFriendsFeed(t *testing.T) {
 	AssertRetrieveFriendsFeed(t)

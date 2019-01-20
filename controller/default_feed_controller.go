@@ -41,8 +41,10 @@ func (controller *DefaultFeedController) SaveFeed(w http.ResponseWriter, r *http
 
 func (controller *DefaultFeedController) GetFeeds(w http.ResponseWriter, r *http.Request) {
 	actor := GetActor(r)
-	log.Printf("Controller. Retrieving user feed for [%s]...", actor)
-	feeds, err := controller.FeedService.RetrieveFeed(actor)
+	includeRelated := GetBoolParam(r, "includeRelated")
+	log.Printf("Controller. Retrieving user feed for [%s] with related included[%t]...", actor, includeRelated)
+
+	feeds, err := controller.FeedService.RetrieveFeed(actor, includeRelated)
 	if err != nil {
 		log.Printf("Something went wrong during retriving feeds for [%s]. Error - [%s].", actor, err)
 		respondWithError(w, http.StatusInternalServerError, err.Error())

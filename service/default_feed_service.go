@@ -9,15 +9,6 @@ import (
 	"time"
 )
 
-const (
-	FollowRelation = "follow"
-)
-
-const (
-	FollowVerb   = "follow"
-	UnfollowVerb = "unfollow"
-)
-
 type DefaultFeedService struct {
 	FeedRepository     repository.FeedRepository
 	RelationRepository repository.RelationRepository
@@ -40,16 +31,48 @@ func (feedService *DefaultFeedService) ProcessFeed(feed models.Feed) error {
 	return nil
 }
 
-func (feedService *DefaultFeedService) RetrieveFeed(actor string) (*[]models.Feed, error) {
-	return feedService.FeedRepository.FindFeedsByActor(actor)
-}
+func (feedService *DefaultFeedService) RetrieveFeed(actor string, includeRelated bool) (*[]models.FeedResponse, error) {
+	feeds, err := feedService.FeedRepository.FindFeedsByActor(actor)
+	if err != nil {
+		return nil, err
+	}
 
-func (feedService *DefaultFeedService) RetrieveFriendsFeed(actor string) (*[]models.Feed, error) {
+	if !includeRelated {
+		return ConvertToResponseFeeds(feeds), nil
+	}
+
+	enrichedFeeds, uniqueObjects := ConvertToResponseFeedsAndCollectUniqueObjects(feeds)
+	if len(*uniqueObjects) == 0 {
+		return enrichedFeeds, nil
+	}
+
 	targets, err := feedService.RelationRepository.GetTargets(actor, FollowRelation)
 	if err != nil {
 		return nil, err
 	}
-	return feedService.FeedRepository.FindFeedsByActors(targets)
+
+	if len(*targets) == 0 {
+		return enrichedFeeds, nil
+	}
+
+	relatedFeeds, err := feedService.FeedRepository.FindFeedsByActorsAndObjects(targets, uniqueObjects)
+	if err != nil {
+		return nil, err
+	}
+	return EnrichFeedsWithRelated(enrichedFeeds, relatedFeeds), nil
+}
+
+func (feedService *DefaultFeedService) RetrieveFriendsFeed(actor string) (*[]models.FeedResponse, error) {
+	targets, err := feedService.RelationRepository.GetTargets(actor, FollowRelation)
+	if err != nil {
+		return nil, err
+	}
+
+	feeds, err := feedService.FeedRepository.FindFeedsByActors(targets)
+	if err != nil {
+		return nil, err
+	}
+	return ConvertToResponseFeeds(feeds), nil
 }
 
 func (feedService *DefaultFeedService) ProcessAction(actor string, request models.ActionRequest) error {
