@@ -16,7 +16,7 @@ type DefaultFeedController struct {
 func (controller *DefaultFeedController) SaveFeed(w http.ResponseWriter, r *http.Request) {
 	log.Println("Controller. Saving new feed...")
 	actor := GetActor(r)
-	var feed models.Feed
+	var feed models.FeedRequest
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&feed); err != nil {
 		log.Println("Something went wrong during decoding feed...", err)

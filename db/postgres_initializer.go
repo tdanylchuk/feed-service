@@ -3,13 +3,13 @@ package db
 import (
 	"github.com/go-pg/pg"
 	"github.com/go-pg/pg/orm"
-	"github.com/tdanylchuk/feed-service/models"
+	"github.com/tdanylchuk/feed-service/entity"
 	"log"
 )
 
 var modelsToInit = []interface{}{
-	(*models.Feed)(nil),
-	(*models.Relation)(nil),
+	(*entity.FeedEntity)(nil),
+	(*entity.Relation)(nil),
 }
 
 type OrmPostgresInitializer struct {

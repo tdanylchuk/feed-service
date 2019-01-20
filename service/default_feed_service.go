@@ -3,10 +3,10 @@ package service
 import (
 	"fmt"
 	"github.com/pkg/errors"
+	"github.com/tdanylchuk/feed-service/entity"
 	"github.com/tdanylchuk/feed-service/models"
 	"github.com/tdanylchuk/feed-service/repository"
 	"log"
-	"time"
 )
 
 type DefaultFeedService struct {
@@ -14,15 +14,15 @@ type DefaultFeedService struct {
 	RelationRepository repository.RelationRepository
 }
 
-func (feedService *DefaultFeedService) SaveFeed(feed models.Feed) error {
-	log.Println("Processing new feed request.", feed)
-	feed.Datetime = time.Now()
+func (feedService *DefaultFeedService) SaveFeed(feedRequest models.FeedRequest) error {
+	log.Println("Processing new feed request.", feedRequest)
+	feed := feedRequest.ToFeedEntity()
 	err := feedService.FeedRepository.SaveFeed(feed)
-	log.Println("Feed has been processed.", feed)
+	log.Println("Feed has been processed.", feedRequest)
 	return err
 }
 
-func (feedService *DefaultFeedService) ProcessFeed(feed models.Feed) error {
+func (feedService *DefaultFeedService) ProcessFeed(feed entity.FeedEntity) error {
 	//feed processor map could added in future map[Verb]Processor
 	if feed.Verb == FollowVerb {
 		log.Printf("Since feed[%s] is follow request add corresponding relation.", feed)
@@ -59,7 +59,7 @@ func (feedService *DefaultFeedService) RetrieveFeed(actor string, includeRelated
 	if err != nil {
 		return nil, err
 	}
-	return EnrichFeedsWithRelated(enrichedFeeds, relatedFeeds), nil
+	return EnrichFeedsWithRelated(enrichedFeeds, ConvertToResponseFeeds(relatedFeeds)), nil
 }
 
 func (feedService *DefaultFeedService) RetrieveFriendsFeed(actor string) (*[]models.FeedResponse, error) {
@@ -93,12 +93,12 @@ func (feedService *DefaultFeedService) ProcessFollowAction(actor string, target 
 		return err
 	}
 
-	feed := models.Feed{
+	feed := entity.FeedEntity{
 		Target: target,
 		Actor:  actor,
 		Verb:   FollowVerb,
 	}
-	return feedService.SaveFeed(feed)
+	return feedService.FeedRepository.SaveFeed(feed)
 }
 
 func (feedService *DefaultFeedService) ProcessUnfollowAction(actor string, target string) error {
@@ -112,10 +112,10 @@ func (feedService *DefaultFeedService) ProcessUnfollowAction(actor string, targe
 			actor, target))
 	}
 
-	feed := models.Feed{
+	feed := entity.FeedEntity{
 		Target: target,
 		Actor:  actor,
 		Verb:   UnfollowVerb,
 	}
-	return feedService.SaveFeed(feed)
+	return feedService.FeedRepository.SaveFeed(feed)
 }

@@ -2,7 +2,7 @@ package repository
 
 import (
 	"github.com/go-pg/pg"
-	"github.com/tdanylchuk/feed-service/models"
+	"github.com/tdanylchuk/feed-service/entity"
 	"log"
 )
 
@@ -11,7 +11,7 @@ type OrmPostgresRelationRepository struct {
 }
 
 func (repository *OrmPostgresRelationRepository) AddRelation(actor string, target string, relation string) error {
-	relationEntity := models.Relation{
+	relationEntity := entity.Relation{
 		Actor:    actor,
 		Target:   target,
 		Relation: relation,
@@ -22,7 +22,7 @@ func (repository *OrmPostgresRelationRepository) AddRelation(actor string, targe
 
 func (repository *OrmPostgresRelationRepository) RemoveRelation(actor string, target string, relation string) (int, error) {
 	log.Printf("Removing relation[%s] of [%s] to [%s].", relation, actor, target)
-	result, err := repository.DB.Model(&models.Relation{}).
+	result, err := repository.DB.Model(&entity.Relation{}).
 		Where("relation.target = ? AND relation.actor = ? AND relation.relation = ?", target, actor, relation).
 		Delete()
 	if err != nil {
@@ -34,7 +34,7 @@ func (repository *OrmPostgresRelationRepository) RemoveRelation(actor string, ta
 func (repository *OrmPostgresRelationRepository) GetTargets(actor string, relation string) (*[]string, error) {
 	var targets []string
 	log.Printf("Retrieving relation targets for actor[%s] and by relation[%s]...", actor, relation)
-	err := repository.DB.Model(&models.Relation{}).
+	err := repository.DB.Model(&entity.Relation{}).
 		Column("relation.target").
 		Where("relation.actor = ?", actor).
 		Select(&targets)

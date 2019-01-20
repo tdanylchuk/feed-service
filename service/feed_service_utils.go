@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/tdanylchuk/feed-service/entity"
 	"github.com/tdanylchuk/feed-service/models"
 	"reflect"
 )
@@ -14,7 +15,7 @@ const (
 	UnfollowVerb = "unfollow"
 )
 
-func ConvertToResponseFeeds(feeds *[]models.Feed) *[]models.FeedResponse {
+func ConvertToResponseFeeds(feeds *[]entity.FeedEntity) *[]models.FeedResponse {
 	feedResponses := make([]models.FeedResponse, len(*feeds))
 	for i, feed := range *feeds {
 		feedResponses[i] = models.ToResponseFeed(feed)
@@ -22,7 +23,7 @@ func ConvertToResponseFeeds(feeds *[]models.Feed) *[]models.FeedResponse {
 	return &feedResponses
 }
 
-func ConvertToResponseFeedsAndCollectUniqueObjects(feeds *[]models.Feed) (*[]models.FeedResponse, *[]string) {
+func ConvertToResponseFeedsAndCollectUniqueObjects(feeds *[]entity.FeedEntity) (*[]models.FeedResponse, *[]string) {
 	objectsMap := make(map[string]bool)
 	feedResponses := make([]models.FeedResponse, len(*feeds))
 	for i, feed := range *feeds {
@@ -40,8 +41,8 @@ func ConvertToResponseFeedsAndCollectUniqueObjects(feeds *[]models.Feed) (*[]mod
 	return &feedResponses, &objects
 }
 
-func EnrichFeedsWithRelated(feedResponses *[]models.FeedResponse, relatedFeeds *[]models.Feed) *[]models.FeedResponse {
-	objectFeedsMap := make(map[string][]models.Feed)
+func EnrichFeedsWithRelated(feedResponses *[]models.FeedResponse, relatedFeeds *[]models.FeedResponse) *[]models.FeedResponse {
+	objectFeedsMap := make(map[string][]models.FeedResponse)
 	for _, feed := range *relatedFeeds {
 		feedList := objectFeedsMap[feed.Object]
 		objectFeedsMap[feed.Object] = append(feedList, feed)
