@@ -20,6 +20,17 @@ func (repository *OrmPostgresRelationRepository) AddRelation(actor string, targe
 	return repository.DB.Insert(&relationEntity)
 }
 
+func (repository *OrmPostgresRelationRepository) RemoveRelation(actor string, target string, relation string) (int, error) {
+	log.Printf("Removing relation[%s] of [%s] to [%s].", relation, actor, target)
+	result, err := repository.DB.Model(&models.Relation{}).
+		Where("relation.target = ? AND relation.actor = ? AND relation.relation = ?", target, actor, relation).
+		Delete()
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), err
+}
+
 func (repository *OrmPostgresRelationRepository) GetTargets(actor string, relation string) (*[]string, error) {
 	var targets []string
 	log.Printf("Retrieving relation targets for actor[%s] and by relation[%s]...", actor, relation)

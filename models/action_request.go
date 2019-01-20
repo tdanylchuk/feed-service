@@ -6,19 +6,28 @@ import (
 )
 
 type ActionRequest struct {
-	Follow *string `json:"follow,omitempty"`
+	Follow   *string `json:"follow,omitempty"`
+	Unfollow *string `json:"unfollow,omitempty"`
 }
 
 func (request *ActionRequest) Validate(actor string) error {
-	if request.Follow != nil {
-		if len(*request.Follow) == 0 {
-			return errors.New("Follow target cannot be empty.")
-		}
-		if *request.Follow == actor {
-			return errors.New(fmt.Sprintf("Actor[%s] cannot follow himself.", actor))
-		}
-		return nil
+	follow := request.Follow
+	if follow != nil {
+		return validateTargetValue(follow, actor, "follow")
 	}
-	return errors.New(fmt.Sprintf("One of the actions should present. Eligible actions: 'follow'"))
+	unfollow := request.Unfollow
+	if unfollow != nil {
+		return validateTargetValue(unfollow, actor, "unfollow")
+	}
+	return errors.New(fmt.Sprintf("One of the actions should present. Eligible actions: 'follow','unfollow'"))
+}
 
+func validateTargetValue(target *string, actor string, description string) error {
+	if len(*target) == 0 {
+		return errors.New(fmt.Sprintf("%s target cannot be empty.", description))
+	}
+	if *target == actor {
+		return errors.New(fmt.Sprintf("Actor[%s] cannot %s himself.", actor, description))
+	}
+	return nil
 }

@@ -41,6 +41,7 @@ func (initializer *OrmPostgresInitializer) InitSchema() error {
 			return err
 		}
 	}
+	_, _ = initializer.DB.Exec("alter table relations add constraint relations_pkey primary key (actor, target, relation)")
 	return nil
 }
 
