@@ -39,7 +39,8 @@ func (app *Application) Close() {
 
 func InitController(db *pg.DB) controller.FeedController {
 	feedRepository := repository.CreateFeedRepository(db)
-	feedService := service.CreateFeedService(feedRepository)
+	relationRepository := repository.CreateRelationRepository(db)
+	feedService := service.CreateFeedService(feedRepository, relationRepository)
 	feedController := controller.CreateController(feedService)
 	return feedController
 }
@@ -49,6 +50,7 @@ func InitRouter(feedController controller.FeedController) *mux.Router {
 	//using {name} instead of implementing authentication
 	router.HandleFunc("/{actor}/feed", feedController.GetFeeds).Methods("GET")
 	router.HandleFunc("/{actor}/feed", feedController.SaveFeed).Methods("POST")
+	router.HandleFunc("/{actor}/action", feedController.PerformAction).Methods("POST")
 	http.Handle("/", router)
 	return router
 }

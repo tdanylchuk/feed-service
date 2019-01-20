@@ -12,11 +12,15 @@ import (
 var app *Application
 var testServer *httptest.Server
 
-var ivansFeed = map[string]string{
+var ivansLikeFeed = map[string]string{
 	"actor":  "ivan",
 	"verb":   "like",
 	"object": "photo:1",
 	"target": "eric",
+}
+
+var ivanFollowRequest = map[string]string{
+	"follow": "ivan",
 }
 
 func TestMain(m *testing.M) {
@@ -46,7 +50,7 @@ func TestFeedFlow(t *testing.T) {
 
 	//then
 	expect.POST("/ivan/feed").
-		WithJSON(ivansFeed).
+		WithJSON(ivansLikeFeed).
 		Expect().
 		Status(http.StatusOK)
 
@@ -66,16 +70,80 @@ func TestFeedFlow(t *testing.T) {
 		Value("datetime").NotNull()
 }
 
+func TestFollowFlow(t *testing.T) {
+	//given
+	expect := httpexpect.New(t, testServer.URL)
+
+	//when
+	expect.POST("/eric/action").
+		WithJSON(ivanFollowRequest).
+		Expect().
+		Status(http.StatusOK)
+
+	//then
+	obj := expect.GET("/eric/feed").
+		Expect().
+		Status(http.StatusOK).
+		JSON().Object()
+	obj.Value("next_url").String().Empty()
+	array := obj.Value("my_feed").Array()
+	array.Length().Equal(1)
+	array.Element(0).Object().
+		ValueEqual("actor", "eric").
+		NotContainsKey("object").
+		ValueEqual("target", "ivan").
+		ValueEqual("verb", "follow").
+		Value("datetime").NotNull()
+}
+
 func TestForbiddenFeedPost(t *testing.T) {
 	//given
 	expect := httpexpect.New(t, testServer.URL)
 
 	//then
-	expect.POST("/another/feed").
-		WithJSON(ivansFeed).
+	expect.POST("/eric/feed").
+		WithJSON(ivansLikeFeed).
 		Expect().
 		Status(http.StatusForbidden).
-		JSON().Object().ValueEqual("error", "Actor[another] is not eligible to post others[ivan] feed items.")
+		JSON().Object().ValueEqual("error", "Actor[eric] is not eligible to post others[ivan] feed items.")
+}
+
+func TestFollowItself(t *testing.T) {
+	//given
+	expect := httpexpect.New(t, testServer.URL)
+
+	//then
+	expect.POST("/ivan/action").
+		WithJSON(ivanFollowRequest).
+		Expect().
+		Status(http.StatusBadRequest).
+		JSON().Object().ValueEqual("error", "Actor[ivan] cannot follow himself.")
+}
+
+func TestFollowEmpty(t *testing.T) {
+	//given
+	expect := httpexpect.New(t, testServer.URL)
+	request := map[string]string{"follow": ""}
+
+	//then
+	expect.POST("/ivan/action").
+		WithJSON(request).
+		Expect().
+		Status(http.StatusBadRequest).
+		JSON().Object().ValueEqual("error", "Follow target cannot be empty.")
+}
+
+func TestUnknownAction(t *testing.T) {
+	//given
+	expect := httpexpect.New(t, testServer.URL)
+	request := map[string]string{"unknownAction": ""}
+
+	//then
+	expect.POST("/ivan/action").
+		WithJSON(request).
+		Expect().
+		Status(http.StatusBadRequest).
+		JSON().Object().ValueEqual("error", "One of the actions should present. Eligible actions: 'follow'")
 }
 
 func TestBadJSONFeedPost(t *testing.T) {

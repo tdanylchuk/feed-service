@@ -19,7 +19,7 @@ func (controller *DefaultFeedController) SaveFeed(w http.ResponseWriter, r *http
 	var feed models.Feed
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&feed); err != nil {
-		log.Println("Something went wrong during saving feed...", err)
+		log.Println("Something went wrong during decoding feed...", err)
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
@@ -52,4 +52,29 @@ func (controller *DefaultFeedController) GetFeeds(w http.ResponseWriter, r *http
 	feedsResponse := models.FeedsResponse{Feed: *feeds}
 	respondWithJSON(w, http.StatusOK, feedsResponse)
 	log.Println("Feed has been retrieved.", feeds)
+}
+
+func (controller *DefaultFeedController) PerformAction(w http.ResponseWriter, r *http.Request) {
+	actor := GetActor(r)
+	log.Printf("Controller. Processing action request from [%s]...", actor)
+
+	var actionRequest models.ActionRequest
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&actionRequest); err != nil {
+		log.Println("Something went wrong during decoding action request...", err)
+		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+	defer r.Body.Close()
+
+	if err := actionRequest.Validate(actor); err != nil {
+		respondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	if err := controller.FeedService.ProcessAction(actor, actionRequest); err != nil {
+		str := fmt.Sprintf("Something went wrong during processing action request. Request - [%s]. Error - [%s]",
+			actionRequest, err)
+		respondWithError(w, http.StatusInternalServerError, str)
+		return
+	}
 }

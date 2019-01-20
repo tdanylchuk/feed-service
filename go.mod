@@ -10,6 +10,7 @@ require (
 	github.com/imkira/go-interpol v1.1.0 // indirect
 	github.com/jinzhu/inflection v0.0.0-20180308033659-04140366298a // indirect
 	github.com/moul/http2curl v1.0.0 // indirect
+	github.com/pkg/errors v0.8.0
 	github.com/sergi/go-diff v1.0.0 // indirect
 	github.com/testcontainers/testcontainers-go v0.0.0-20190108154635-47c0da630f72
 	github.com/valyala/fasthttp v1.1.0 // indirect

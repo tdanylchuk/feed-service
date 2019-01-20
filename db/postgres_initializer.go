@@ -7,6 +7,11 @@ import (
 	"log"
 )
 
+var modelsToInit = []interface{}{
+	(*models.Feed)(nil),
+	(*models.Relation)(nil),
+}
+
 type OrmPostgresInitializer struct {
 	DB *pg.DB
 }
@@ -27,7 +32,7 @@ func New(
 }
 
 func (initializer *OrmPostgresInitializer) InitSchema() error {
-	for _, model := range []interface{}{(*models.Feed)(nil)} {
+	for _, model := range modelsToInit {
 		err := initializer.DB.CreateTable(model, &orm.CreateTableOptions{
 			Temp:        false,
 			IfNotExists: true,

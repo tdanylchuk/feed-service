@@ -3,10 +3,12 @@ package controller
 import (
 	"encoding/json"
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
 )
 
 func respondWithError(w http.ResponseWriter, code int, message string) {
+	log.Println(message)
 	respondWithJSON(w, code, map[string]string{"error": message})
 }
 
