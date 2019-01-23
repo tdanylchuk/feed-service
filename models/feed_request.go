@@ -1,6 +1,9 @@
 package models
 
-import "github.com/tdanylchuk/feed-service/entity"
+import (
+	"github.com/tdanylchuk/feed-service/entity"
+	"time"
+)
 
 type FeedRequest struct {
 	Actor  string `json:"actor,omitempty"`
@@ -11,9 +14,10 @@ type FeedRequest struct {
 
 func (feedRequest *FeedRequest) ToFeedEntity() entity.FeedEntity {
 	return entity.FeedEntity{
-		Actor:  feedRequest.Actor,
-		Verb:   feedRequest.Verb,
-		Object: feedRequest.Object,
-		Target: feedRequest.Target,
+		Actor:    feedRequest.Actor,
+		Verb:     feedRequest.Verb,
+		Object:   feedRequest.Object,
+		Target:   feedRequest.Target,
+		Datetime: time.Now(),
 	}
 }

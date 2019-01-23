@@ -1,10 +1,10 @@
-package db
+package initializer
 
 import (
 	"github.com/go-pg/pg"
 	"github.com/go-pg/pg/orm"
 	"github.com/tdanylchuk/feed-service/entity"
-	"log"
+	"os"
 )
 
 var modelsToInit = []interface{}{
@@ -16,24 +16,28 @@ type OrmPostgresInitializer struct {
 	DB *pg.DB
 }
 
-func New(
-	host string,
-	user string,
-	password string,
-	dbName string,
-) *OrmPostgresInitializer {
+func InitPostgresDB() *OrmPostgresInitializer {
+	host := os.Getenv("DB_HOST")
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_USER_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
+
 	db := pg.Connect(&pg.Options{
 		User:     user,
 		Password: password,
 		Database: dbName,
 		Addr:     host,
 	})
+	err := initSchema(db)
+	if err != nil {
+		panic(err)
+	}
 	return &OrmPostgresInitializer{DB: db}
 }
 
-func (initializer *OrmPostgresInitializer) InitSchema() error {
+func initSchema(db *pg.DB) error {
 	for _, model := range modelsToInit {
-		err := initializer.DB.CreateTable(model, &orm.CreateTableOptions{
+		err := db.CreateTable(model, &orm.CreateTableOptions{
 			Temp:        false,
 			IfNotExists: true,
 		})
@@ -41,7 +45,7 @@ func (initializer *OrmPostgresInitializer) InitSchema() error {
 			return err
 		}
 	}
-	_, _ = initializer.DB.Exec("alter table relations add constraint relations_pkey primary key (actor, target, relation)")
+	_, _ = db.Exec("alter table relations add constraint relations_pkey primary key (actor, target, relation)")
 	return nil
 }
 
@@ -50,8 +54,5 @@ func (initializer *OrmPostgresInitializer) GetDB() *pg.DB {
 }
 
 func (initializer *OrmPostgresInitializer) Close() {
-	err := initializer.DB.Close()
-	if err != nil {
-		log.Fatalln(err)
-	}
+	defer initializer.DB.Close()
 }

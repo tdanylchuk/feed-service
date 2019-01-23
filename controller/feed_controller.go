@@ -6,7 +6,7 @@ import (
 )
 
 type FeedController interface {
-	SaveFeed(w http.ResponseWriter, r *http.Request)
+	ProcessFeed(w http.ResponseWriter, r *http.Request)
 	GetFeeds(w http.ResponseWriter, r *http.Request)
 	PerformAction(w http.ResponseWriter, r *http.Request)
 	GetFriendsFeeds(w http.ResponseWriter, r *http.Request)

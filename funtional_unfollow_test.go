@@ -4,6 +4,7 @@ import (
 	"gopkg.in/gavv/httpexpect.v1"
 	"net/http"
 	"testing"
+	"time"
 )
 
 func AssertUnfollowFlow(t *testing.T) {
@@ -21,6 +22,9 @@ func AssertUnfollowFlow(t *testing.T) {
 		WithJSON(map[string]string{"unfollow": "jerry"}).
 		Expect().
 		Status(http.StatusOK)
+
+	//and
+	time.Sleep(asyncCallTimeout)
 
 	//expect
 	obj := expect.GET("/jack/feed").

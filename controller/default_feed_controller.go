@@ -13,8 +13,8 @@ type DefaultFeedController struct {
 	FeedService service.FeedService
 }
 
-func (controller *DefaultFeedController) SaveFeed(w http.ResponseWriter, r *http.Request) {
-	log.Println("Controller. Saving new feed...")
+func (controller *DefaultFeedController) ProcessFeed(w http.ResponseWriter, r *http.Request) {
+	log.Println("Controller. Processing new feed...")
 	actor := GetActor(r)
 	var feed models.FeedRequest
 	decoder := json.NewDecoder(r.Body)
@@ -32,8 +32,8 @@ func (controller *DefaultFeedController) SaveFeed(w http.ResponseWriter, r *http
 		return
 	}
 
-	if err := controller.FeedService.SaveFeed(feed); err != nil {
-		log.Printf("Something went wrong during feed saving. Feed - [%s]. Error - [%s]", feed, err)
+	if err := controller.FeedService.ProcessFeed(feed); err != nil {
+		log.Printf("Something went wrong during feed processing. Feed - [%s]. Error - [%s]", feed, err)
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

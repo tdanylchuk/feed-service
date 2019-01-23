@@ -13,6 +13,7 @@ import (
 )
 
 func InitPostgresContainer(ctx context.Context) testcontainers.Container {
+	log.Printf("Starting Postgres container...")
 	user := "postgres_user"
 	password := "postgres_password"
 	dbName := "postgres_db"
@@ -27,22 +28,7 @@ func InitPostgresContainer(ctx context.Context) testcontainers.Container {
 		Env:          envVariables,
 		WaitingFor:   &PostgresWaitStrategy{User: user, Database: dbName, Password: password},
 	}
-	postgresContainer, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
-		ContainerRequest: req,
-		Started:          true,
-	})
-	if err != nil {
-		panic(err)
-	}
-	ip, err := postgresContainer.Host(ctx)
-	if err != nil {
-		panic(err)
-	}
-	port, err := postgresContainer.MappedPort(ctx, "5432")
-	if err != nil {
-		panic(err)
-	}
-	host := fmt.Sprintf("%s:%s", ip, port.Port())
+	container, host := StartContainerAndGetHost(ctx, req, "5432")
 
 	_ = os.Setenv("DB_HOST", host)
 	_ = os.Setenv("DB_USER", user)
@@ -51,7 +37,7 @@ func InitPostgresContainer(ctx context.Context) testcontainers.Container {
 
 	log.Printf("Test container with Postgres has been started. Host[%s] user[%s] password[%s] dbName[%s]",
 		host, user, password, dbName)
-	return postgresContainer
+	return container
 }
 
 type PostgresWaitStrategy struct {
@@ -80,6 +66,7 @@ func (strategy *PostgresWaitStrategy) WaitUntilReady(ctx context.Context, target
 			log.Println("Successfully connected to Postgres DB.")
 			return nil
 		}
+		log.Println(err)
 		time.Sleep(time.Second)
 	}
 	return errors.New(fmt.Sprintf("failed to connect to Postrgres container using host[%s] ", host))

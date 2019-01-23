@@ -4,6 +4,7 @@ import (
 	"gopkg.in/gavv/httpexpect.v1"
 	"net/http"
 	"testing"
+	"time"
 )
 
 func AssertEnrichedFeedFlow(t *testing.T) {
@@ -38,6 +39,8 @@ func AssertEnrichedFeedFlow(t *testing.T) {
 			"target": "someone"}).
 		Expect().
 		Status(http.StatusOK)
+	//and
+	time.Sleep(asyncCallTimeout)
 
 	//expect
 	expect.GET("/aron/feed").WithQuery("includeRelated", "true").
@@ -54,6 +57,8 @@ func AssertEnrichedFeedFlow(t *testing.T) {
 			"follow": "scott"}).
 		Expect().
 		Status(http.StatusOK)
+	//and
+	time.Sleep(asyncCallTimeout)
 
 	//expect
 	obj := expect.GET("/aron/feed").WithQuery("includeRelated", "true").

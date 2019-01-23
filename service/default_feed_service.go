@@ -3,27 +3,39 @@ package service
 import (
 	"fmt"
 	"github.com/pkg/errors"
-	"github.com/tdanylchuk/feed-service/entity"
 	"github.com/tdanylchuk/feed-service/models"
 	"github.com/tdanylchuk/feed-service/repository"
+	"github.com/tdanylchuk/feed-service/sender"
 	"log"
 )
 
 type DefaultFeedService struct {
 	FeedRepository     repository.FeedRepository
 	RelationRepository repository.RelationRepository
+	Sender             sender.Sender
 }
 
-func (feedService *DefaultFeedService) SaveFeed(feedRequest models.FeedRequest) error {
+func (feedService *DefaultFeedService) ProcessFeed(feedRequest models.FeedRequest) error {
 	log.Println("Processing new feed request.", feedRequest)
-	feed := feedRequest.ToFeedEntity()
-	err := feedService.FeedRepository.SaveFeed(feed)
+	err := feedService.processFeed(feedRequest)
+	if err != nil {
+		return err
+	}
+	err = feedService.Sender.Send(&feedRequest)
 	log.Println("Feed has been processed.", feedRequest)
 	return err
 }
 
-func (feedService *DefaultFeedService) ProcessFeed(feed entity.FeedEntity) error {
-	//feed processor map could added in future map[Verb]Processor
+func (feedService *DefaultFeedService) SaveFeed(feedRequest models.FeedRequest) error {
+	log.Println("Saving new feed ...", feedRequest)
+	feed := feedRequest.ToFeedEntity()
+	err := feedService.FeedRepository.SaveFeed(feed)
+	log.Println("Feed has been saved.", feedRequest)
+	return err
+}
+
+func (feedService *DefaultFeedService) processFeed(feed models.FeedRequest) error {
+	//feed processor map could added in future - map[Verb]Processor
 	if feed.Verb == FollowVerb {
 		log.Printf("Since feed[%s] is follow request add corresponding relation.", feed)
 		return feedService.RelationRepository.AddRelation(feed.Actor, feed.Target, FollowRelation)
@@ -78,30 +90,30 @@ func (feedService *DefaultFeedService) RetrieveFriendsFeed(actor string) (*[]mod
 func (feedService *DefaultFeedService) ProcessAction(actor string, request models.ActionRequest) error {
 	log.Printf("Processing action request[%#v] from [%s].", request, actor)
 	if request.Follow != nil {
-		return feedService.ProcessFollowAction(actor, *request.Follow)
+		return feedService.processFollowAction(actor, *request.Follow)
 	}
 	if request.Unfollow != nil {
-		return feedService.ProcessUnfollowAction(actor, *request.Unfollow)
+		return feedService.processUnfollowAction(actor, *request.Unfollow)
 	}
 	return errors.New("Cannot process unknown action.")
 }
 
-func (feedService *DefaultFeedService) ProcessFollowAction(actor string, target string) error {
+func (feedService *DefaultFeedService) processFollowAction(actor string, target string) error {
 	log.Printf("Processing follow [%#v] from [%s].", target, actor)
 	err := feedService.RelationRepository.AddRelation(actor, target, FollowRelation)
 	if err != nil {
 		return err
 	}
 
-	feed := entity.FeedEntity{
+	feed := models.FeedRequest{
 		Target: target,
 		Actor:  actor,
 		Verb:   FollowVerb,
 	}
-	return feedService.FeedRepository.SaveFeed(feed)
+	return feedService.Sender.Send(&feed)
 }
 
-func (feedService *DefaultFeedService) ProcessUnfollowAction(actor string, target string) error {
+func (feedService *DefaultFeedService) processUnfollowAction(actor string, target string) error {
 	log.Printf("Processing unfollow [%s] from [%s].", target, actor)
 	count, err := feedService.RelationRepository.RemoveRelation(actor, target, FollowRelation)
 	if err != nil {
@@ -112,10 +124,10 @@ func (feedService *DefaultFeedService) ProcessUnfollowAction(actor string, targe
 			actor, target))
 	}
 
-	feed := entity.FeedEntity{
+	feed := models.FeedRequest{
 		Target: target,
 		Actor:  actor,
 		Verb:   UnfollowVerb,
 	}
-	return feedService.FeedRepository.SaveFeed(feed)
+	return feedService.Sender.Send(&feed)
 }

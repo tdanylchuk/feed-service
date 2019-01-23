@@ -4,6 +4,7 @@ import (
 	"gopkg.in/gavv/httpexpect.v1"
 	"net/http"
 	"testing"
+	"time"
 )
 
 var rossFollowRequest = map[string]string{
@@ -21,6 +22,8 @@ func AssertFollowFlow(t *testing.T) {
 		Status(http.StatusOK)
 
 	//then
+	time.Sleep(asyncCallTimeout)
+	//and
 	obj := expect.GET("/eric/feed").
 		Expect().
 		Status(http.StatusOK).
@@ -59,21 +62,4 @@ func AssertFollowEmpty(t *testing.T) {
 		Expect().
 		Status(http.StatusBadRequest).
 		JSON().Object().ValueEqual("error", "follow target cannot be empty.")
-}
-
-func AssertDoubleFollow(t *testing.T) {
-	//given
-	expect := httpexpect.New(t, testServer.URL)
-
-	//when
-	expect.POST("/wolf/action").
-		WithJSON(rossFollowRequest).
-		Expect().
-		Status(http.StatusOK)
-
-	//then
-	expect.POST("/wolf/action").
-		WithJSON(rossFollowRequest).
-		Expect().
-		Status(http.StatusInternalServerError)
 }

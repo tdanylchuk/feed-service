@@ -4,6 +4,7 @@ import (
 	"gopkg.in/gavv/httpexpect.v1"
 	"net/http"
 	"testing"
+	"time"
 )
 
 var ivansLikeFeed = map[string]string{
@@ -29,6 +30,10 @@ func AssertFeedFlow(t *testing.T) {
 		WithJSON(ivansLikeFeed).
 		Expect().
 		Status(http.StatusOK)
+	//and
+	time.Sleep(asyncCallTimeout)
+	time.Sleep(asyncCallTimeout)
+	time.Sleep(asyncCallTimeout)
 
 	//expect
 	obj = expect.GET("/ivan/feed").

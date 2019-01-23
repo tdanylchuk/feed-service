@@ -2,6 +2,7 @@ module github.com/tdanylchuk/feed-service
 
 require (
 	github.com/ajg/form v0.0.0-20160822230020-523a5da1a92f // indirect
+	github.com/docker/go-connections v0.4.0
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/gavv/monotime v0.0.0-20171021193802-6f8212e8d10d // indirect
 	github.com/go-pg/pg v7.1.6+incompatible
@@ -11,6 +12,7 @@ require (
 	github.com/jinzhu/inflection v0.0.0-20180308033659-04140366298a // indirect
 	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/pkg/errors v0.8.0
+	github.com/segmentio/kafka-go v0.2.2
 	github.com/sergi/go-diff v1.0.0 // indirect
 	github.com/testcontainers/testcontainers-go v0.0.0-20190108154635-47c0da630f72
 	github.com/valyala/fasthttp v1.1.0 // indirect

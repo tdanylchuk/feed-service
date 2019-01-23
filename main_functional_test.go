@@ -5,21 +5,32 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 )
 
 var app *Application
 var testServer *httptest.Server
 
+//in case of instability of tests, please tweak these timeouts
+var serverWarmupTimeout = 10 * time.Second
+var asyncCallTimeout = 1000 * time.Millisecond
+
 func TestMain(m *testing.M) {
 	ctx := context.Background()
 	postgresContainer := InitPostgresContainer(ctx)
+	zookeeperContainer, kafkaContainer := InitKafkaContainers(ctx)
 	defer postgresContainer.Terminate(ctx)
+	defer zookeeperContainer.Terminate(ctx)
+	defer kafkaContainer.Terminate(ctx)
 
 	app = CreateApp()
+	app.KafkaFeedConsumer.StartConsuming()
+
 	testServer = httptest.NewServer(app.Router)
 	defer testServer.Close()
 	defer app.Close()
 
+	time.Sleep(serverWarmupTimeout)
 	code := m.Run()
 	os.Exit(code)
 }
@@ -57,9 +68,6 @@ func TestFollowItself(t *testing.T) {
 }
 func TestFollowEmpty(t *testing.T) {
 	AssertFollowEmpty(t)
-}
-func TestDoubleFollow(t *testing.T) {
-	AssertDoubleFollow(t)
 }
 
 //unfollow test suit

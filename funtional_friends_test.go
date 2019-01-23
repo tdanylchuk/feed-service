@@ -4,6 +4,7 @@ import (
 	"gopkg.in/gavv/httpexpect.v1"
 	"net/http"
 	"testing"
+	"time"
 )
 
 func AssertRetrieveFriendsFeed(t *testing.T) {
@@ -42,6 +43,8 @@ func AssertRetrieveFriendsFeed(t *testing.T) {
 		WithJSON(map[string]string{"follow": "taras"}).
 		Expect().
 		Status(http.StatusOK)
+	//and
+	time.Sleep(asyncCallTimeout)
 	//expect
 	friendsFeed := expect.GET("/andrew/feed/friends").
 		Expect().
@@ -56,6 +59,8 @@ func AssertRetrieveFriendsFeed(t *testing.T) {
 		WithJSON(map[string]string{"follow": "igor"}).
 		Expect().
 		Status(http.StatusOK)
+	//and
+	time.Sleep(asyncCallTimeout)
 	//expect
 	friendsFeed = expect.GET("/andrew/feed/friends").
 		Expect().
@@ -70,6 +75,8 @@ func AssertRetrieveFriendsFeed(t *testing.T) {
 		WithJSON(map[string]string{"unfollow": "taras"}).
 		Expect().
 		Status(http.StatusOK)
+	//and
+	time.Sleep(asyncCallTimeout)
 	//expect
 	friendsFeed = expect.GET("/andrew/feed/friends").
 		Expect().
