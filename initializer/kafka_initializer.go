@@ -2,6 +2,7 @@ package initializer
 
 import (
 	"github.com/segmentio/kafka-go"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -22,6 +23,7 @@ func InitKafkaClients() *KafkaInitializer {
 }
 
 func createKafkaWriter(kafkaBrokerUrls string, feedsTopicName string) *kafka.Writer {
+	log.Printf("Setting kafka writer to write to [%s]:[%s]", kafkaBrokerUrls, feedsTopicName)
 	dialer := &kafka.Dialer{
 		Timeout:  10 * time.Second,
 		ClientID: "feed-service",
@@ -32,19 +34,20 @@ func createKafkaWriter(kafkaBrokerUrls string, feedsTopicName string) *kafka.Wri
 		Dialer:       dialer,
 		WriteTimeout: 10 * time.Second,
 		ReadTimeout:  10 * time.Second,
+		Async:        true,
 	}
 	return kafka.NewWriter(config)
 }
 
 func createKafkaReader(kafkaBrokerUrls string, feedsTopicName string) *kafka.Reader {
-	brokers := strings.Split(kafkaBrokerUrls, ",")
+	log.Printf("Setting kafka reader to read from [%s]:[%s]", kafkaBrokerUrls, feedsTopicName)
 	config := kafka.ReaderConfig{
-		Brokers:         brokers,
+		Brokers:         strings.Split(kafkaBrokerUrls, ","),
 		GroupID:         "feeds-service",
 		Topic:           feedsTopicName,
 		MinBytes:        100,
-		MaxBytes:        1000,
-		MaxWait:         10 * time.Microsecond,
+		MaxBytes:        10000,
+		MaxWait:         1000 * time.Second,
 		ReadLagInterval: -1,
 	}
 	return kafka.NewReader(config)

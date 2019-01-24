@@ -4,6 +4,7 @@ import (
 	"github.com/go-pg/pg"
 	"github.com/go-pg/pg/orm"
 	"github.com/tdanylchuk/feed-service/entity"
+	"log"
 	"os"
 )
 
@@ -21,6 +22,7 @@ func InitPostgresDB() *OrmPostgresInitializer {
 	user := os.Getenv("DB_USER")
 	password := os.Getenv("DB_USER_PASSWORD")
 	dbName := os.Getenv("DB_NAME")
+	log.Printf("Connecting to postgres DB [%s]:[%s] with user[%s]", host, dbName, user)
 
 	db := pg.Connect(&pg.Options{
 		User:     user,
