@@ -23,7 +23,7 @@ func AssertFeedFlow(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().Object()
-	obj.Value("next_url").String().Empty()
+	obj.Value("next_url").String().NotEmpty()
 
 	//then
 	expect.POST("/ivan/feed").
@@ -32,15 +32,13 @@ func AssertFeedFlow(t *testing.T) {
 		Status(http.StatusOK)
 	//and
 	time.Sleep(asyncCallTimeout)
-	time.Sleep(asyncCallTimeout)
-	time.Sleep(asyncCallTimeout)
 
 	//expect
 	obj = expect.GET("/ivan/feed").
 		Expect().
 		Status(http.StatusOK).
 		JSON().Object()
-	obj.Value("next_url").String().Empty()
+	obj.Value("next_url").String().NotEmpty()
 	array := obj.Value("my_feed").Array()
 	array.Length().Equal(1)
 	array.Element(0).Object().

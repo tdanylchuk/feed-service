@@ -50,7 +50,7 @@ func AssertRetrieveFriendsFeed(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().Object()
-	friendsFeed.Value("next_url").String().Empty()
+	friendsFeed.Value("next_url").String().NotEmpty()
 	friendsFeed.Value("friends_feed").Array().
 		Length().Equal(1)
 
@@ -66,7 +66,7 @@ func AssertRetrieveFriendsFeed(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().Object()
-	friendsFeed.Value("next_url").String().Empty()
+	friendsFeed.Value("next_url").String().NotEmpty()
 	friendsFeed.Value("friends_feed").Array().
 		Length().Equal(3)
 
@@ -82,7 +82,7 @@ func AssertRetrieveFriendsFeed(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().Object()
-	friendsFeed.Value("next_url").String().Empty()
+	friendsFeed.Value("next_url").String().NotEmpty()
 	friendsFeed.Value("friends_feed").Array().
 		Length().Equal(2)
 }

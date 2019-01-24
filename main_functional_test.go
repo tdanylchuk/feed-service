@@ -49,6 +49,11 @@ func TestBadJSONFeedPost(t *testing.T) {
 	AssertBadJSONFeedPost(t)
 }
 
+//feed pagination suit
+func TestFeedPaginationFlow(t *testing.T) {
+	AssertFeedPaginationFlow(t)
+}
+
 //enriched feed suit
 func TestEnrichedFeedFlow(t *testing.T) {
 	AssertEnrichedFeedFlow(t)

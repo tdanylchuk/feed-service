@@ -43,8 +43,8 @@ func (feedService *DefaultFeedService) processFeed(feed models.FeedRequest) erro
 	return nil
 }
 
-func (feedService *DefaultFeedService) RetrieveFeed(actor string, includeRelated bool) (*[]models.FeedResponse, error) {
-	feeds, err := feedService.FeedRepository.FindFeedsByActor(actor)
+func (feedService *DefaultFeedService) RetrieveFeed(actor string, includeRelated bool, page int, limit int) (*[]models.FeedResponse, error) {
+	feeds, err := feedService.FeedRepository.FindFeedsByActor(actor, page, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -74,13 +74,13 @@ func (feedService *DefaultFeedService) RetrieveFeed(actor string, includeRelated
 	return EnrichFeedsWithRelated(enrichedFeeds, ConvertToResponseFeeds(relatedFeeds)), nil
 }
 
-func (feedService *DefaultFeedService) RetrieveFriendsFeed(actor string) (*[]models.FeedResponse, error) {
+func (feedService *DefaultFeedService) RetrieveFriendsFeed(actor string, page int, limit int) (*[]models.FeedResponse, error) {
 	targets, err := feedService.RelationRepository.GetTargets(actor, FollowRelation)
 	if err != nil {
 		return nil, err
 	}
 
-	feeds, err := feedService.FeedRepository.FindFeedsByActors(targets)
+	feeds, err := feedService.FeedRepository.FindFeedsByActors(targets, page, limit)
 	if err != nil {
 		return nil, err
 	}

@@ -9,8 +9,8 @@ import (
 type FeedService interface {
 	SaveFeed(feed models.FeedRequest) error
 	ProcessFeed(feed models.FeedRequest) error
-	RetrieveFeed(actor string, includeRelated bool) (*[]models.FeedResponse, error)
-	RetrieveFriendsFeed(actor string) (*[]models.FeedResponse, error)
+	RetrieveFeed(actor string, includeRelated bool, page int, limit int) (*[]models.FeedResponse, error)
+	RetrieveFriendsFeed(actor string, page int, limit int) (*[]models.FeedResponse, error)
 	ProcessAction(actor string, request models.ActionRequest) error
 }
 

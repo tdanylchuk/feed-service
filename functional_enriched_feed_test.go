@@ -65,7 +65,7 @@ func AssertEnrichedFeedFlow(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().Object()
-	obj.Value("next_url").String().Empty()
+	obj.Value("next_url").String().NotEmpty()
 	array := obj.Value("my_feed").Array()
 	array.Length().Equal(2)
 	feed := array.Element(0).Object().

@@ -42,9 +42,9 @@ func createKafkaReader(kafkaBrokerUrls string, feedsTopicName string) *kafka.Rea
 		Brokers:         brokers,
 		GroupID:         "feeds-service",
 		Topic:           feedsTopicName,
-		MinBytes:        10e1,
-		MaxBytes:        10e6,
-		MaxWait:         100 * time.Microsecond,
+		MinBytes:        100,
+		MaxBytes:        1000,
+		MaxWait:         10 * time.Microsecond,
 		ReadLagInterval: -1,
 	}
 	return kafka.NewReader(config)

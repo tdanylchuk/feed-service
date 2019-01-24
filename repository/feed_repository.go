@@ -7,8 +7,8 @@ import (
 
 type FeedRepository interface {
 	SaveFeed(feed entity.FeedEntity) error
-	FindFeedsByActor(actor string) (*[]entity.FeedEntity, error)
-	FindFeedsByActors(actors *[]string) (*[]entity.FeedEntity, error)
+	FindFeedsByActor(actor string, page int, limit int) (*[]entity.FeedEntity, error)
+	FindFeedsByActors(actors *[]string, page int, limit int) (*[]entity.FeedEntity, error)
 	FindFeedsByActorsAndObjects(actors *[]string, objects *[]string) (*[]entity.FeedEntity, error)
 }
 
