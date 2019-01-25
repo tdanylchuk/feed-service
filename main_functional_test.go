@@ -13,7 +13,7 @@ var testServer *httptest.Server
 
 //in case of instability of tests, please tweak these timeouts
 var serverWarmupTimeout = 10 * time.Second
-var asyncCallTimeout = 1000 * time.Millisecond
+var asyncCallTimeout = 1500 * time.Millisecond
 
 func TestMain(m *testing.M) {
 	ctx := context.Background()

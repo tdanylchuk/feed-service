@@ -83,7 +83,6 @@ func InitRouter(feedController controller.FeedController) *mux.Router {
 	router.
 		Methods("GET").
 		Path("/{actor}/feed/friends").
-		Queries("includeRelated", "{key:'^(?:tru|fals)e$}").
 		HandlerFunc(feedController.GetFriendsFeeds)
 	http.Handle("/", router)
 	return router
